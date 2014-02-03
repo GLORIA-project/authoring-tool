@@ -1,0 +1,16 @@
+{
+	"titles" : {
+		"home": "Home",
+		"experiments": {
+			"header": "Esperimenti",
+			"online": {
+				"header": "Online",
+				"template" : "Schema"
+			}
+		},
+		"generic": {
+			"header": "Generico",
+			"template": "Schema"			
+		}
+	}
+}

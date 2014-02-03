@@ -1,16 +1,16 @@
 {
 	"titles" : {
-		"home": "Home",
+		"home": "Домой",
 		"experiments": {
-			"header": "Experiments",
+			"header": "Эксперименты",
 			"online": {
-				"header": "Online",
-				"template" : "Template"
+				"header": "Онлайн",
+				"template" : "Заготовка"
 			}
 		},
 		"generic": {
-			"header": "Generic",
-			"template": "Template"			
+			"header": "Общий",
+			"template": "Заготовка"			
 		}
 	}
 }

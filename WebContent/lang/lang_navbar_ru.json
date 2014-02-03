@@ -1,0 +1,16 @@
+{
+	"titles" : {
+		"home": "Home",
+		"experiments": {
+			"header": "Experiments",
+			"online": {
+				"header": "Online",
+				"template" : "Template"
+			}
+		},
+		"generic": {
+			"header": "Generic",
+			"template": "Template"			
+		}
+	}
+}

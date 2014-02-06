@@ -21,7 +21,7 @@ locale.controller('LocaleController', function($scope, $sce, $gloriaLocale,
 locale.service('$gloriaLocale', function($locale, $http, $window, $myCookie,
 		$cookieStore) {
 
-	var languages = [ 'en', 'es', 'it', 'pl', 'cs', 'ru' ];
+	var languages = [ 'en', 'es', 'it', 'pl', 'cz', 'ru' ];
 
 	$locale.dictionary = {};
 	var langCookie = $myCookie('preferredLang');
@@ -374,7 +374,7 @@ v.run(function($rootScope, $route, $gloriaView) {
  * Toolbox module (main)
  */
 
-var toolbox = angular.module('toolbox', [ 'ngCookies', 'ngRoute', 'ngAnimate',
+var toolbox = angular.module('toolbox', [ 'ngCookies', 'ngRoute', 'ngAnimate', 'ngSanitize',
 		'gloria.locale', 'gloria.view', 'gloria.api', 'ui.bootstrap' ]);
 
 toolbox.filter('utc', [ function() {
@@ -385,6 +385,13 @@ toolbox.filter('utc', [ function() {
 		return new Date(date.getUTCFullYear(), date.getUTCMonth(), date
 				.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date
 				.getUTCSeconds());
+	};
+} ]);
+
+toolbox.filter('highlight', [ function() {
+	return function(input, query) {
+		return input.replace(RegExp('(' + query + ')', 'g'),
+				'<strong>$1</strong>');
 	};
 } ]);
 
@@ -650,6 +657,16 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 	};
 
 	$scope.login.connect = function() {
+
+		var tmpEmail = $("#email").val();
+		if (tmpEmail != undefined) {
+			$scope.login.email = tmpEmail;
+		}
+
+		var tmpPassword = $("#password").val();
+		if (tmpPassword != undefined) {
+			$scope.login.password = tmpPassword;
+		}
 
 		if ($scope.login.email != null && $scope.login.password != null) {
 			Login.authenticate($scope.login.email, $scope.login.password).then(

@@ -48,6 +48,20 @@ gloria.factory('HttpWrapper',
 			return wrapper;
 		});
 
+gloria.factory('GhWrapper',
+		function($http, $cookies) {
+			var wrapper = {				
+				http : function(options) {
+					options.url = 'https://api.github.com/repos/GLORIA-project/' + options.repo + '/'
+							+ options.query;
+					options.headers = options.headers || {};					
+					return $http(options);
+				}
+			};
+
+			return wrapper;
+		});
+
 gloria.factory('$sequenceFactory', function($q) {
 
 	return {
@@ -83,6 +97,104 @@ function SequenceHandler($q) {
 			execNext();
 		return d.promise;
 	};
+}
+
+gloria.factory('$ghAPI', function(GhWrapper, $q) {
+	var api = new GithubHandler(GhWrapper, $q);
+
+	return api;
+});
+
+function GithubHandler(GhWrapper, $q) {
+
+	this.httpWrapper = GhWrapper;
+
+	this.setHttp = function(handler) {
+		this.httpWrapper = handler;
+	};
+
+	this.processRequest = function (method, repo, query, success, error, unauthorized) {
+		
+		var defer = $q.defer();
+		
+		var promise = this.httpWrapper.http({
+			method: method,
+			repo: repo,
+			query: query
+		});
+		
+		promise = promise.then(function(response) {
+			if (response.status == 200) {
+				if (success != undefined) {
+					var returnData = response.data;
+					if (response.data != undefined && response.data != null
+							&& response.data != '') {
+						returnData = angular.fromJson(returnData);
+					}
+
+					success(returnData, response.status);
+					defer.resolve(response);
+				}
+			} else {
+				if (error != undefined) {
+					var returnData = response.data;
+					if (response.status != 401 && response.data != undefined
+							&& response.data != null && response.data != '') {
+						returnData = angular.fromJson(returnData);
+					}
+					error(returnData, response.status);
+				}
+
+				if (response.status == 401) {
+					if (unauthorized != undefined) {
+						unauthorized();
+					}
+				}
+
+				console.log(response);
+				defer.reject(response);
+			}
+
+			return response.data;
+
+		}, function(response) {
+			if (error != undefined) {
+				var returnData = response.data;
+				if (response.status != 401 && response.data != undefined
+						&& response.data != null && response.data != '') {
+					returnData = angular.fromJson(returnData);
+				}
+				error(returnData, response.status);
+			}
+
+			if (response.status == 401) {
+				if (unauthorized != undefined) {
+					unauthorized();
+				}
+			}
+
+			console.log(response);
+			defer.reject(response);
+
+			return response.data;
+		});
+
+		return defer.promise;
+	};
+	
+
+	this.getAllIssues = function(repo, success, error, unauthorized) {
+
+		return this.processRequest('get', repo, 'issues',
+				success, error, unauthorized);
+	};
+	
+	this.getLabelIssues = function(repo, label, success, error, unauthorized) {
+
+		return this.processRequest('get', repo, 'issues?labels=' + label,
+				success, error, unauthorized);
+	};
+
 }
 
 gloria.factory('$gloriaAPI', function(HttpWrapper, $q) {

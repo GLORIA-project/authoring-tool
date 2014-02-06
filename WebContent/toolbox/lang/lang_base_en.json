@@ -29,9 +29,7 @@
                     "other": "noted"
                 }
             },
-            "author": {
-                "pre": "GLORIA Authoring Tool and the GLORIA services platform have been developed by @{p1}@ and are hosted in"
-            },
+            "author": "GLORIA Authoring Tool and the GLORIA services platform have been developed by @{p1}@ and are hosted in",
             "flags": "All flag images are obtained from "
         }
     }

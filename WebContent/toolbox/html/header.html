@@ -20,17 +20,20 @@
 								<div ng-switch on="login.failed" style="font-size: 85%;">
 									<div ng-switch-when="true">{{'base.login.failed'|i18n}}</div>
 									<div ng-switch-when="false" style="cursor: pointer;">
-										<a ng-click="toggleLoginFace()" style="color: #818181">{{accountOption |i18n}}</a>
+										<a ng-click="toggleLoginFace()" style="color: #818181">{{accountOption
+											|i18n}}</a>
 									</div>
 								</div>
 							</div>
 							<input id="email"
 								style="background-color: #E0E0E0; color: #0F0F0F; width: 150px"
 								ng-model="login.email" name="email" class="span login-input"
-								type="text" placeholder="Email" ng-style="inputStyle" /> <input id="password"
+								type="text" placeholder="Email" ng-style="inputStyle" /> <input
+								id="password"
 								style="background-color: #E0E0E0; color: #0F0F0F; margin-right: 8px"
 								ng-model="login.password" class="span2 login-input"
-								name="password" type="password" placeholder="{{'base.login.password'|i18n}}"
+								name="password" type="password"
+								placeholder="{{'base.login.password'|i18n}}"
 								ng-style="inputStyle" />
 							<button class="btn btn-inverse" type="submit">{{'base.login.in'
 								|i18n}}</button>
@@ -42,11 +45,12 @@
 			<div ng-show="login.user">
 				<button type="submit" class="pull-right btn btn-inverse"
 					ng-click="login.disconnect()">{{'base.login.out' |i18n}}</button>
-				<div class="span5 pull-right ng-binding"
-					style="padding-top: 10px; padding-right: 5px; margin-right: 20px; text-align: right">{{'base.login.welcome'
-					| i18n}}, {{login.user}}</div>
+				<div class="pull-right ng-binding"
+					style="padding-top: 10px; padding-right: 5px; margin-right: 20px; text-align: right">
+					{{'base.login.welcome' | i18n}}, {{login.user}}</div>
+				<div gravatar-image data-email="login.finalEmail" data-size="30" data-href="#/profile"
+					class="pull-right" style="margin-right: 15px; margin-top: 5px"></div>
 			</div>
 		</div>
 	</div>
-</div>
 </div>

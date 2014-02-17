@@ -3,10 +3,10 @@
 var host = 'ws.users.gloria-project.eu';
 var protocol = 'https';
 var port = '8443';
+
 /*
-var host = 'localhost';
-var protocol = 'http';
-var port = '8080';*/
+ * var host = 'localhost'; var protocol = 'http'; var port = '8080';
+ */
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);
@@ -48,19 +48,18 @@ gloria.factory('HttpWrapper',
 			return wrapper;
 		});
 
-gloria.factory('GhWrapper',
-		function($http, $cookies) {
-			var wrapper = {				
-				http : function(options) {
-					options.url = 'https://api.github.com/repos/GLORIA-project/' + options.repo + '/'
-							+ options.query;
-					options.headers = options.headers || {};					
-					return $http(options);
-				}
-			};
+gloria.factory('GhWrapper', function($http, $cookies) {
+	var wrapper = {
+		http : function(options) {
+			options.url = 'https://api.github.com/repos/GLORIA-project/'
+					+ options.repo + '/' + options.query;
+			options.headers = options.headers || {};
+			return $http(options);
+		}
+	};
 
-			return wrapper;
-		});
+	return wrapper;
+});
 
 gloria.factory('$sequenceFactory', function($q) {
 
@@ -113,16 +112,17 @@ function GithubHandler(GhWrapper, $q) {
 		this.httpWrapper = handler;
 	};
 
-	this.processRequest = function (method, repo, query, success, error, unauthorized) {
-		
+	this.processRequest = function(method, repo, query, success, error,
+			unauthorized) {
+
 		var defer = $q.defer();
-		
+
 		var promise = this.httpWrapper.http({
-			method: method,
-			repo: repo,
-			query: query
+			method : method,
+			repo : repo,
+			query : query
 		});
-		
+
 		promise = promise.then(function(response) {
 			if (response.status == 200) {
 				if (success != undefined) {
@@ -181,14 +181,13 @@ function GithubHandler(GhWrapper, $q) {
 
 		return defer.promise;
 	};
-	
 
 	this.getAllIssues = function(repo, success, error, unauthorized) {
 
-		return this.processRequest('get', repo, 'issues',
-				success, error, unauthorized);
+		return this.processRequest('get', repo, 'issues', success, error,
+				unauthorized);
 	};
-	
+
 	this.getLabelIssues = function(repo, label, success, error, unauthorized) {
 
 		return this.processRequest('get', repo, 'issues?labels=' + label,
@@ -331,6 +330,13 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 		return this.processRequest('post', 'GLORIAAPI/users/update', {
 			password : password
+		}, success, error, unauthorized);
+	};
+	
+	this.setOcupation = function(ocupation, success, error, unauthorized) {
+
+		return this.processRequest('post', 'GLORIAAPI/users/update', {
+			ocupation : ocupation
 		}, success, error, unauthorized);
 	};
 
@@ -652,7 +658,7 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 			return $gloriaAPI.resetPassword(email, success, error);
 		},
 		changePassword : function(password, success, error) {
-			return $gloriaAPI.resetPassword(password, success, error);
+			return $gloriaAPI.changePassword(password, success, error);
 
 			// do more things here (update)
 		}

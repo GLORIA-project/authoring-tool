@@ -1,36 +1,36 @@
 {
     "login": {
-        "in": "Login",
-        "out": "Logout",
-        "welcome": "Welcome",
-        "failed": "Login failed",
-        "forgot": "Forgot your password?",
-        "new": "I don't have an account",
-        "email": "Email",
-        "password": "Password"
+        "in": "Connexion",
+        "out": "Déconnexion",
+        "welcome": "Bienvenue",
+        "failed": "La connexion a échoué",
+        "forgot": "Wvez-vous oublié votre mot de passe?",
+        "new": "Je n'ai pas de compte utilisateur",
+        "email": "Courriel",
+        "password": "Mot de passe"
     },
     "footer": {
         "ack": {
-            "header": "ACKNOWLEDGMENTS AND DISCLAIMER",
-            "content": "GLObal Robotic telescopes Intelligent Array for e-Science (GLORIA) is a project funded by the European Union Seventh Framework Programme (FP7/2007-2012) under grant agreement number 283783. Any opinions, findings, conclusions or recommendations expressed in this website are those of the author(s) and do not necessarily reflect the views of EC or any Institution involved in the GLORIA project."
+            "header": "REMERCIEMENTS ET DÉCHARGES",
+            "content": "GLObal Robotic telescopes Intelligent Array for e-Science (GLORIA) est un projet financé par le septième programme cadre de l'Union européenne (FP7/2007-2012), numéro 283783. Tout jugement, opinion, conclusion ou recommendation exprimé sur ce site web est celui de son auteur seul et ne reflète pas nécessairement les opinions de la CE ou de quelque institution impliquée dans le projet GLORIA."
         },
         "partners": {
-            "header": "PARTNERS OF THE PROJECT"
+            "header": "PARTENAIRES DU PROJET"
         },
         "bottom": {
-            "header": "AUTHORS AND LICENSES",
+            "header": "AUTEURS ET LICENSES",
             "license": {
                 "own": {
-                    "pre": "All the content on this site by the",
-                    "project": "GLORIA Project",
-                    "post1": "is licensed under a",
+                    "pre": "Tout le contenu de ce site par le",
+                    "project": "projet GLORIA",
+                    "post1": "est sous licence",
                     "name": "Creative Commons Attribution 3.0 Unported License",
-                    "post2": "except where otherwise",
-                    "other": "noted"
+                    "post2": "sauf indication",
+                    "other": "noté"
                 }
             },
-            "author": "GLORIA Authoring Tool and the GLORIA services platform have been developed by @{p1}@ and are hosted in",
-            "flags": "All flag images are obtained from "
+            "author": "Les logiciels \"GLORIA Authoring Tool\" et \"GLORIA services\" sont développés par @{p1}@ et hébergés à ",
+            "flags": "Toutes les images des drapeaux sont obtenues depuis "
         }
     }
 }

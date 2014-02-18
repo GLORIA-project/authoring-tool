@@ -4,9 +4,7 @@ var host = 'ws.users.gloria-project.eu';
 var protocol = 'https';
 var port = '8443';
 
-/*
- * var host = 'localhost'; var protocol = 'http'; var port = '8080';
- */
+/* var host = 'localhost'; var protocol = 'http'; var port = '8080'; */
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);
@@ -332,7 +330,7 @@ function GloriaApiHandler(HttpWrapper, $q) {
 			password : password
 		}, success, error, unauthorized);
 	};
-	
+
 	this.setOcupation = function(ocupation, success, error, unauthorized) {
 
 		return this.processRequest('post', 'GLORIAAPI/users/update', {

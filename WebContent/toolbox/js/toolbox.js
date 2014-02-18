@@ -313,7 +313,7 @@ locale.controller('LocaleController', function($scope, $sce, $gloriaLocale,
 locale.service('$gloriaLocale', function($locale, $http, $window, $myCookie,
 		$cookieStore) {
 
-	var languages = [ 'en', 'es', 'it', 'pl', 'cz', 'ru' ];
+	var languages = [ 'en', 'es', 'it', 'pl', 'cz', 'ru', 'fr' ];
 
 	$locale.dictionary = {};
 	var langCookie = $myCookie('preferredLang');

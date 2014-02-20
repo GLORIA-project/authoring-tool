@@ -278,13 +278,15 @@ angular
 															+ '&r=pg&d=retro" />';
 													// insert the tag into the
 													// element
-													
+
 													var href = attrs.href;
-													if ((href != null) && (href !== undefined)) {
-														tag = '<a href="' + href + '">' + tag + '</a>';
+													if ((href != null)
+															&& (href !== undefined)) {
+														tag = '<a href="'
+																+ href + '">'
+																+ tag + '</a>';
 													}
 
-													
 													elm.html(tag);
 												}
 											});
@@ -934,8 +936,7 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 			if ($scope.login.user != null) {
 				go = view.visibility != 'only-public';
 				if (!go) {
-					Login.disconnect();
-					$scope.gotoWelcome();
+					$scope.login.disconnect();
 				}
 
 				return go;
@@ -944,11 +945,13 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 			go = view.visibility == "public"
 					|| view.visibility == "only-public";
 
-			return go;
+			if (go)
+				return true;
 		}
 
-		Login.disconnect();
-		$scope.gotoWelcome();
+		$scope.login.disconnect();
+
+		return false;
 	};
 
 	$scope.login.connect = function() {
@@ -1026,13 +1029,54 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 	});
 });
 
-toolbox.service('$gloriaNav', function($http) {
+toolbox.service('$gloriaNav', function($http, Login, $gloriaAPI) {
 
 	var menus = [];
-	var objMenus = [];
+	var objMenus;
 	var initDone = false;
-
+	var rawMenus = {};
 	var afterSuccess = [];
+
+	var refresh = function() {
+		$gloriaAPI.getUserInformation(function(info) {
+
+			menus = [];
+			console.log(info);
+			var role = info == null ? '' : info.roles[0];
+
+			for ( var key in rawMenus) {
+
+				var menu = rawMenus[key];
+
+				var letSee = menu.visibility == undefined
+						|| (menu.visibility == role);
+
+				if (letSee) {
+					menu.name = key;
+					menus.push(menu);
+
+					if (menu.child != undefined) {
+						menu.child.forEach(function(child) {
+							letSee = child.visibility == undefined
+									|| (child.visibility == role);
+							child.visible = letSee;
+						});
+					}
+				}
+			}
+
+			objMenus = rawMenus;
+
+			initDone = true;
+
+			afterSuccess.forEach(function(then) {
+				if (then != undefined) {
+					then();
+				}
+			});
+
+		});
+	};
 
 	var gNav = {
 
@@ -1043,24 +1087,13 @@ toolbox.service('$gloriaNav', function($http) {
 				url : url,
 				cache : false
 			}).success(function(data) {
-				for ( var key in data) {
-
-					var menu = data[key];
-					menu.name = key;
-
-					menus.push(menu);
-				}
-
-				objMenus = data;
-
-				initDone = true;
-
-				afterSuccess.forEach(function(then) {
-					if (then != undefined) {
-						then();
-					}
+				rawMenus = data;
+				Login.afterConnect(function() {
+					refresh();
 				});
-
+				Login.afterDisconnect(function() {
+					refresh();
+				});
 			}).error(function() {
 				alert("Navbar resource problem!");
 			});
@@ -1095,83 +1128,94 @@ toolbox.run(function($gloriaLocale, $gloriaNav, $rootScope) {
 	});
 });
 
-toolbox.controller('NavbarCtrl', function($scope, $http, $location, $window,
-		$gloriaLocale, $gloriaNav) {
+toolbox
+		.controller(
+				'NavbarCtrl',
+				function($scope, $http, $location, $window, $gloriaLocale,
+						$gloriaNav, $gloriaAPI) {
 
-	$scope.navClass = function(menu) {
-		var currentRoute = $location.path();
+					$scope.navClass = function(menu) {
+						var currentRoute = $location.path();
 
-		var cl = '';
+						var cl = '';
 
-		if ($gloriaNav.getMenu(menu).href != undefined) {
-			cl = $gloriaNav.getMenu(menu).href.path === currentRoute ? 'active'
-					: '';
-		} else {
-			if ($gloriaNav.getMenu(menu).child != undefined) {
-				cl += ' dropdown';
+						if ($gloriaNav.getMenu(menu).href != undefined) {
+							var href = $gloriaNav.getMenu(menu).href;
+							if (href.app == undefined) {
+								cl = $gloriaNav.getMenu(menu).href.path === currentRoute ? 'active'
+										: '';
+							}
+						} else {
 
-				$gloriaNav.getMenu(menu).child.forEach(function(child) {
-					if (child.href != undefined) {
-						cl += ' '
-								+ (child.href.path === currentRoute ? 'active'
-										: '');
-					}
+							if ($gloriaNav.getMenu(menu).child != undefined) {
+								cl += ' dropdown';
+
+								$gloriaNav.getMenu(menu).child
+										.forEach(function(child) {
+											if (child.href != undefined) {
+												var href = child.href;
+												if (href.app == undefined) {
+													cl += ' '
+															+ (child.href.path === currentRoute ? 'active'
+																	: '');
+												}
+											}
+										});
+							}
+						}
+
+						return cl;
+					};
+
+					$scope.linkClass = function(menu) {
+						var cl = '';
+
+						if ($gloriaNav.getMenu(menu).child != undefined) {
+							cl = 'dropdown-toggle';
+						}
+
+						return cl;
+					};
+
+					$scope.childClass = function(type) {
+						if (type == 'header') {
+							return 'nav-header';
+						} else if (type == 'divider') {
+							return 'divider';
+						}
+
+						return '';
+					};
+
+					$scope.changePath = function(href) {
+						if (href != undefined) {
+
+							if (href.app != undefined) {
+								var url = $window.location.origin;
+								if (url == undefined) {
+									url = $window.location.protocol + "//"
+											+ $window.location.host;
+								}
+								if (href.app.length > 0) {
+									url += '/';
+								}
+								url += href.app + '/#';
+								if (href.path != undefined) {
+									url += href.path;
+								}
+								$window.location.href = url;
+							} else if (href.url != undefined) {
+								$window.location.href = href.url;
+							} else if (href.path != undefined) {
+								$location.path(href.path);
+							}
+						}
+					};
+
+					$gloriaNav.after(function() {
+						$scope.menus = $gloriaNav.getMenusArray();
+					});
 				});
-			}
-		}
-
-		return cl;
-	};
-
-	$scope.linkClass = function(menu) {
-		var cl = '';
-
-		if ($gloriaNav.getMenu(menu).child != undefined) {
-			cl = 'dropdown-toggle';
-		}
-
-		return cl;
-	};
-
-	$scope.childClass = function(type) {
-		if (type == 'header') {
-			return 'nav-header';
-		} else if (type == 'divider') {
-			return 'divider';
-		}
-
-		return '';
-	};
-
-	$scope.changePath = function(href) {
-		if (href != undefined) {
-
-			if (href.app != undefined) {
-				var url = $window.location.origin;
-				if (url == undefined) {
-					url = $window.location.protocol + "//"
-							+ $window.location.host;
-				}
-				if (href.app.length > 0) {
-					url += '/';
-				}
-				url += href.app + '/#';
-				if (href.path != undefined) {
-					url += href.path;
-				}
-				$window.location.href = url;
-			} else if (href.url != undefined) {
-				$window.location.href = href.url;
-			} else if (href.path != undefined) {
-				$location.path(href.path);
-			}
-		}
-	};
-
-	$gloriaNav.after(function() {
-		$scope.menus = $gloriaNav.getMenusArray();
-	});
-});
 
 toolbox.animation('.reveal-animation', function() {
 	return {

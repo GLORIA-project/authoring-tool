@@ -404,9 +404,14 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 	this.cancelReservation = function(rid, success, error, unauthorized) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/online/cancel?rid=' + rid, null,
-				success, error, unauthorized);
+		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
+				+ rid + '/cancel', null, success, error, unauthorized);
+	};
+
+	this.resetReservation = function(rid, success, error, unauthorized) {
+
+		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
+				+ rid + '/reset', null, success, error, unauthorized);
 	};
 
 	this.makeReservation = function(experiment, telescopes, begin, end,
@@ -548,8 +553,6 @@ gloria.factory('$myCookie', function() {
 
 gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 
-	// var token = $cookieStore.get('myGloriaToken');
-	// var user = $cookieStore.get('myGloriaUser');
 	var token = $myCookie('myGloriaToken');
 	var reg = new RegExp('"', 'g');
 
@@ -563,7 +566,25 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 		user = user.replace(reg, '');
 	}
 
-	var authenticated = false;
+	var authenticated = undefined;
+	var afterDisconnectFn = [];
+	var afterConnectFn = [];
+
+	var notifyDisconnect = function() {
+		afterDisconnectFn.forEach(function(then) {
+			if (then != undefined) {
+				then();
+			}
+		});
+	};
+	
+	var notifyConnect = function() {
+		afterConnectFn.forEach(function(then) {
+			if (then != undefined) {
+				then();
+			}
+		});
+	};
 
 	return {
 		authenticate : function(username, password) {
@@ -588,6 +609,7 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 
 				$gloriaAPI.setCredentials(null, token);
 				authenticated = true;
+				notifyConnect();
 			}, function() {
 				$cookieStore.remove('myGloriaToken');
 				$myCookie('myGloriaToken', {
@@ -601,6 +623,7 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 				});
 				$gloriaAPI.clearCredentials();
 				authenticated = false;
+				notifyDisconnect();
 			});
 		},
 		getUser : function() {
@@ -624,6 +647,7 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 			token = null;
 			authenticated = false;
 			$gloriaAPI.clearCredentials();
+			notifyDisconnect();
 		},
 		getToken : function() {
 			return token;
@@ -633,20 +657,23 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 				$gloriaAPI.setCredentials(null, token);
 				$gloriaAPI.verifyToken(function(data) {
 					$gloriaAPI.setCredentials(null, token);
+					authenticated = true;
 					success();
+					notifyConnect();
 				}, function() {
 					$cookieStore.remove('myGloriaToken');
 					$cookieStore.remove('myGloriaUser');
 					if (error != undefined) {
 						error();
 					}
+					notifyDisconnect();
 				});
 			} else {
 				if (error != undefined) {
 					error();
 				}
+				notifyDisconnect();
 			}
-
 		},
 		registerUser : function(alias, email, password, success, error) {
 			return $gloriaAPI.registerUser(alias, email, password, success,
@@ -657,8 +684,20 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 		},
 		changePassword : function(password, success, error) {
 			return $gloriaAPI.changePassword(password, success, error);
-
-			// do more things here (update)
+		},
+		afterConnect : function(then) {
+			if (authenticated == undefined) {
+				afterConnectFn.push(then);
+			} else {
+				then();
+			}
+		},
+		afterDisconnect : function(then) {
+			if (authenticated == undefined) {
+				afterDisconnectFn.push(then);
+			} else {
+				then();
+			}
 		}
 	};
 });

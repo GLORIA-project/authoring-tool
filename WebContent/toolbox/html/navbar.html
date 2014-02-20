@@ -9,7 +9,7 @@
 			</a>
 				<ul ng-if="menu.child != undefined"
 					class="dropdown-menu animate-show">
-					<li ng-repeat="child in menu.child"
+					<li ng-repeat="child in menu.child | filter:{visible: true}"
 						ng-class="childClass(child.type)"><a style="cursor: pointer"
 						ng-click="changePath(child.href)" ng-if="child.href != undefined">{{child.text
 							| i18n}}</a>

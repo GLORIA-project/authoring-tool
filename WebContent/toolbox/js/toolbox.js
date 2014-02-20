@@ -949,9 +949,13 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 				return true;
 		}
 
-		$scope.login.disconnect();
+		if ($scope.login.user != null) {
+			$scope.login.disconnect();
+		}
+		
+		$scope.gotoWelcome();
 
-		return false;
+		//return false;
 	};
 
 	$scope.login.connect = function() {
@@ -1000,7 +1004,7 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 		$scope.login.email = null;
 		$scope.login.password = null;
 		document.execCommand("ClearAuthenticationCache");
-		$scope.gotoWelcome();
+		//$scope.gotoWelcome();
 	};
 
 	$scope.$on('unauthorized', function() {

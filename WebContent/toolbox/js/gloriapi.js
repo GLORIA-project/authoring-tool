@@ -38,6 +38,9 @@ gloria.factory('HttpWrapper',
 
 					return $http(options);
 				},
+				httpAbsolute : function(options) {
+					return $http(options);
+				},
 				getAuthorization : function() {
 					return authorization;
 				}
@@ -208,6 +211,34 @@ function GloriaApiHandler(HttpWrapper, $q) {
 		this.httpWrapper = handler;
 	};
 
+	this.process = function(method, url, success, error) {
+		var promise = this.httpWrapper.httpAbsolute({
+			method : method,
+			url : url
+		});
+
+		promise = promise.then(function(response) {
+			if (success != undefined) {
+				var returnData = response.data;
+				if (response.data != undefined && response.data != null
+						&& response.data != '') {
+					returnData = angular.fromJson(returnData);
+				}
+
+				success(returnData, response.status);
+			}
+		}, function(response) {
+			if (error != undefined) {
+				var returnData = response.data;
+				if (response.status != 401 && response.data != undefined
+						&& response.data != null && response.data != '') {
+					returnData = angular.fromJson(returnData);
+				}
+				error(returnData, response.status);
+			}
+		});
+	};
+
 	this.processRequest = function(method, url, data, success, error,
 			unauthorized) {
 
@@ -304,6 +335,13 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 		return this.processRequest('get', 'GLORIAAPI/users/info', null,
 				success, error, unauthorized);
+	};
+
+	this.getUserKarma = function(user, success, error, unauthorized) {
+
+		return this.process('get',
+				'http://users.gloria-project.eu/karma/rest/karma/execute/get_karma/'
+						+ user, success, error, unauthorized);
 	};
 
 	this.registerUser = function(alias, email, password, success, error,
@@ -426,6 +464,24 @@ function GloriaApiHandler(HttpWrapper, $q) {
 				}, success, error, unauthorized);
 	};
 
+	this.requestObservation = function(obj, success, error, unauthorized) {
+		return this.processRequest('post', 'GLORIAAPI/scheduler/plans/request',
+				{
+					object : obj,
+					description : obj + " observation test"
+				}, success, error, unauthorized);
+	};
+
+	this.getActivePlans = function(success, error, unauthorized) {
+		return this.processRequest('get', 'GLORIAAPI/scheduler/plans/active',
+				null, success, error, unauthorized);
+	};
+
+	this.getInactivePlans = function(success, error, unauthorized) {
+		return this.processRequest('get', 'GLORIAAPI/scheduler/plans/inactive',
+				null, success, error, unauthorized);
+	};
+
 	this.applyForOffline = function(experiment, success, error, unauthorized) {
 
 		return this.processRequest('get',
@@ -504,7 +560,7 @@ function GloriaApiHandler(HttpWrapper, $q) {
 gloria.factory('$myCookie', function() {
 	function fetchValue(name) {
 		var aCookie = document.cookie.split("; ");
-		for (var i = 0; i < aCookie.length; i++) {
+		for ( var i = 0; i < aCookie.length; i++) {
 			// a name/value pair (a crumb) is separated by an equal sign
 			var aCrumb = aCookie[i].split("=");
 			if (name === aCrumb[0]) {
@@ -577,7 +633,7 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 			}
 		});
 	};
-	
+
 	var notifyConnect = function() {
 		afterConnectFn.forEach(function(then) {
 			if (then != undefined) {
@@ -789,7 +845,7 @@ var Base64 = {
 		string = string.replace(/\r\n/g, "\n");
 		var utftext = "";
 
-		for (var n = 0; n < string.length; n++) {
+		for ( var n = 0; n < string.length; n++) {
 
 			var c = string.charCodeAt(n);
 

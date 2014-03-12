@@ -1,10 +1,13 @@
 'use strict';
 
-var host = 'ws.users.gloria-project.eu';
-var protocol = 'https';
-var port = '8443';
+/*
+ * var host = 'ws.users.gloria-project.eu'; var protocol = 'https'; var port =
+ * '8443';
+ */
 
-/* var host = 'localhost'; var protocol = 'http'; var port = '8080'; */
+var host = 'localhost';
+var protocol = 'http';
+var port = '8080';
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);
@@ -555,12 +558,30 @@ function GloriaApiHandler(HttpWrapper, $q) {
 				+ month + '/' + day + "?complete=true&maxResults=30", null,
 				success, error, unauthorized);
 	};
+
+	/* Scripting */
+	this.registerScript = function(script, success, error, unauthorized) {
+		return this.processRequest('post', 'GLORIAAPI/experiments/scripts/'
+				+ script.rt, script, success, error, unauthorized);
+	};
+
+	this.deleteScript = function(script, success, error, unauthorized) {
+		return this.processRequest('delete',
+				'GLORIAAPI/experiments/scripts/id/' + script.sid, null,
+				success, error, unauthorized);
+	};
+
+	this.getTelescopeScripts = function(rt, success, error, unauthorized) {
+		return this.processRequest('get',
+				'GLORIAAPI/experiments/scripts/' + rt, null, success, error,
+				unauthorized);
+	};
 }
 
 gloria.factory('$myCookie', function() {
 	function fetchValue(name) {
 		var aCookie = document.cookie.split("; ");
-		for ( var i = 0; i < aCookie.length; i++) {
+		for (var i = 0; i < aCookie.length; i++) {
 			// a name/value pair (a crumb) is separated by an equal sign
 			var aCrumb = aCookie[i].split("=");
 			if (name === aCrumb[0]) {
@@ -845,7 +866,7 @@ var Base64 = {
 		string = string.replace(/\r\n/g, "\n");
 		var utftext = "";
 
-		for ( var n = 0; n < string.length; n++) {
+		for (var n = 0; n < string.length; n++) {
 
 			var c = string.charCodeAt(n);
 

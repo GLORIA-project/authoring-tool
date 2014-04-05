@@ -1,6 +1,5 @@
 'use strict';
 
-
 var host = 'ws.users.gloria-project.eu';
 var protocol = 'https';
 var port = '8443';
@@ -90,6 +89,7 @@ function SequenceHandler($q) {
 			if (queue.length > 0)
 				execNext();
 		}, function(response) {
+			queue.shift();
 			task.d.reject(response);
 		});
 	};

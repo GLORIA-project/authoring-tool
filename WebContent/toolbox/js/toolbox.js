@@ -670,7 +670,7 @@ v.run(function($rootScope, $route, $gloriaView) {
 
 var toolbox = angular.module('toolbox', [ 'ngCookies', 'ngRoute', 'ngAnimate',
 		'ngSanitize', 'gloria.locale', 'gloria.view', 'gloria.api',
-		'ui-gravatar', 'ui.bootstrap' ]);
+		'ui-gravatar', 'ui.bootstrap', 'smoothScroll' ]);
 
 toolbox.filter('utc', [ function() {
 	return function(date) {
@@ -772,7 +772,7 @@ toolbox.service('$gloriaEnv', function($http) {
 	return gEnv;
 });
 
-toolbox.config(function($sceDelegateProvider, $filterProvider) {
+toolbox.config(function($sceDelegateProvider, $filterProvider, $compileProvider) {
 
 	$sceDelegateProvider
 			.resourceUrlWhitelist([ 'self', 'https://rawgithub.com/fserena/**',
@@ -781,10 +781,12 @@ toolbox.config(function($sceDelegateProvider, $filterProvider) {
 	// save references to the providers
 	toolbox.lazy = {
 		filter : $filterProvider.register,
-	};
+		directive : $compileProvider.directive
+	};	
 });
 
-toolbox.run(function($gloriaLocale, $gloriaEnv, $rootScope) {
+toolbox.run(function($gloriaLocale, $gloriaEnv, $rootScope, $location, $window,
+		$timeout, smoothScroll) {
 
 	$rootScope.titleLoaded = false;
 
@@ -824,6 +826,35 @@ toolbox.run(function($gloriaLocale, $gloriaEnv, $rootScope) {
 
 		$gloriaEnv.init();
 	});
+
+	toolbox.scrollTo = function(id) {
+		if (!id)
+			$window.scrollTo(0, 0);
+		// check if an element can be found with id attribute
+		var el = document.getElementById(id);
+		if (!el) {// check if an element can be found with name attribute if
+			// there is no such id
+			el = document.getElementsByName(id);
+
+			if (el && el.length)
+				el = el[0];
+			else
+				el = null;
+		}
+
+		if (el) { // if an element is found, scroll to the element
+			$timeout(function(timer) {
+				var options = {
+					duration : 1000,
+					easing : 'easeInOutQuint',
+					offset : 120
+				};
+				smoothScroll(el, options);
+				// $window.scrollTo(0, el.offsetTop - 100);
+			}, 100);
+		}
+	};
+
 });
 
 toolbox.controller('MainController', function($scope, $http, $window,
@@ -952,10 +983,10 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 		if ($scope.login.user != null) {
 			$scope.login.disconnect();
 		}
-		
+
 		$scope.gotoWelcome();
 
-		//return false;
+		// return false;
 	};
 
 	$scope.login.connect = function() {
@@ -1004,7 +1035,7 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 		$scope.login.email = null;
 		$scope.login.password = null;
 		document.execCommand("ClearAuthenticationCache");
-		//$scope.gotoWelcome();
+		// $scope.gotoWelcome();
 	};
 
 	$scope.$on('unauthorized', function() {

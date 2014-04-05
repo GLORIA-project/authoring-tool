@@ -30,7 +30,8 @@
                 }
             },
             "author": "Les logiciels \"GLORIA Authoring Tool\" et \"GLORIA services\" sont développés par @{p1}@ et hébergés à ",
-            "flags": "Toutes les images des drapeaux sont obtenues depuis "
+            "flags": "Toutes les images des drapeaux sont obtenues depuis ",
+            "icons": "Most icons are from "
         }
     }
 }

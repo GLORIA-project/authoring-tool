@@ -30,7 +30,8 @@
 				}
 			},
 			"author": "GLORIA Authoring Tool y la plataforma de servicios de GLORIA han sido desarrollados por @{p1}@ y son mantenidos en ",
-			"flags": "Todas las imágenes de banderas han sido obtenidas desde"
+			"flags": "Todas las imágenes de banderas han sido obtenidas desde",
+            "icons": "La mayoría de los iconos son de"
 		}
 	}
 }

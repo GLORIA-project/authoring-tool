@@ -30,7 +30,8 @@
 				}
 			},
 			"author": "GLORIA Authoring Tool e la piattaforma dei servizi GLORIA sono stati sviluppati da @{p1}@ e sono ospitati presso",			
-			"flags": "Tutte le immagini delle bandiere sono prese da"
+			"flags": "Tutte le immagini delle bandiere sono prese da",
+            "icons": "Most icons are from"
 		}
 	}
 }

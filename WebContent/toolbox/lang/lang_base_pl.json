@@ -30,7 +30,8 @@
                 }
             },
             "author": "Narzędzie autorskie i usługi projektu GLORIA rozwijane są z pomocą @{p1}@ i są hostowane u ",
-            "flags": "Wszystkie grafiki przedstawiające flagi pozyskano z "
+            "flags": "Wszystkie grafiki przedstawiające flagi pozyskano z",
+            "icons": "Most icons are from"
         }
     }
 }

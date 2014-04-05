@@ -1,13 +1,17 @@
 'use strict';
 
-/*
- * var host = 'ws.users.gloria-project.eu'; var protocol = 'https'; var port =
- * '8443';
- */
 
+var host = 'ws.users.gloria-project.eu';
+var protocol = 'https';
+var port = '8443';
+/*
+var host = 'saturno.datsi.fi.upm.es';
+var protocol = 'http';
+var port = '8080';*/
+/*
 var host = 'localhost';
 var protocol = 'http';
-var port = '8080';
+var port = '8080';*/
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);
@@ -323,21 +327,20 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 	this.authenticate = function(success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/users/authenticate', null,
+		return this.processRequest('get', 'api/users/authenticate', null,
 				success, error, unauthorized);
 	};
 
 	this.verifyToken = function(success, error) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/users/authenticate?verify=true', null, success,
-				error);
+		return this.processRequest('get', 'api/users/authenticate?verify=true',
+				null, success, error);
 	};
 
 	this.getUserInformation = function(success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/users/info', null,
-				success, error, unauthorized);
+		return this.processRequest('get', 'api/users/info', null, success,
+				error, unauthorized);
 	};
 
 	this.getUserKarma = function(user, success, error, unauthorized) {
@@ -350,7 +353,7 @@ function GloriaApiHandler(HttpWrapper, $q) {
 	this.registerUser = function(alias, email, password, success, error,
 			unauthorized) {
 
-		return this.processRequest('post', 'GLORIAAPI/users/register', {
+		return this.processRequest('post', 'api/users/register', {
 			alias : alias,
 			email : email,
 			password : password
@@ -360,84 +363,79 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 	this.resetPassword = function(email, success, error, unauthorized) {
 
-		return this.processRequest('post', 'GLORIAAPI/users/reset', {
+		return this.processRequest('post', 'api/users/reset', {
 			email : email
 		}, success, error, unauthorized);
 	};
 
 	this.changePassword = function(password, success, error, unauthorized) {
 
-		return this.processRequest('post', 'GLORIAAPI/users/update', {
+		return this.processRequest('post', 'api/users/update', {
 			password : password
 		}, success, error, unauthorized);
 	};
 
 	this.setOcupation = function(ocupation, success, error, unauthorized) {
 
-		return this.processRequest('post', 'GLORIAAPI/users/update', {
+		return this.processRequest('post', 'api/users/update', {
 			ocupation : ocupation
 		}, success, error, unauthorized);
 	};
 
 	this.deactivateUser = function(password, success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/users/deactivate', null,
+		return this.processRequest('get', 'api/users/deactivate', null,
 				success, error, unauthorized);
 	};
 
 	/* Experiment reservations management */
 	this.getPendingReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/pending',
-				null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/pending', null,
+				success, error, unauthorized);
 	};
 
 	this.getOfflinePendingReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/offline/pending', null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/offline/pending',
+				null, success, error, unauthorized);
 	};
 
 	this.getOnlinePendingReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/online/pending', null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/online/pending',
+				null, success, error, unauthorized);
 	};
 
 	this.getActiveReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/active', null,
+		return this.processRequest('get', 'api/experiments/active', null,
 				success, error, unauthorized);
 	};
 
 	this.getReservationInformation = function(cid, success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/info', null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + cid
+				+ '/info', null, success, error, unauthorized);
 	};
 
 	this.getOfflineActiveReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/offline/active', null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/offline/active',
+				null, success, error, unauthorized);
 	};
 
 	this.getOnlineActiveReservations = function(success, error, unauthorized) {
 
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/online/active', null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/online/active',
+				null, success, error, unauthorized);
 	};
 
 	this.getAvailableReservations = function(experiment, telescopes, date,
 			success, error, unauthorized) {
 		return this.processRequest('post',
-				'GLORIAAPI/experiments/online/slots/available/'
-						+ date.getFullYear() + '/' + date.getMonth() + '/'
-						+ date.getDate(), {
+				'api/experiments/online/slots/available/' + date.getFullYear()
+						+ '/' + date.getMonth() + '/' + date.getDate(), {
 					experiment : experiment,
 					telescopes : telescopes
 				}, success, error, unauthorized);
@@ -445,136 +443,131 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 	this.cancelReservation = function(rid, success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ rid + '/cancel', null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + rid
+				+ '/cancel', null, success, error, unauthorized);
 	};
 
 	this.resetReservation = function(rid, success, error, unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ rid + '/reset', null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + rid
+				+ '/reset', null, success, error, unauthorized);
 	};
 
 	this.makeReservation = function(experiment, telescopes, begin, end,
 			success, error, unauthorized) {
 
-		return this.processRequest('post',
-				'GLORIAAPI/experiments/online/reserve', {
-					experiment : experiment,
-					telescopes : telescopes,
-					begin : begin,
-					end : end
-				}, success, error, unauthorized);
+		return this.processRequest('post', 'api/experiments/online/reserve', {
+			experiment : experiment,
+			telescopes : telescopes,
+			begin : begin,
+			end : end
+		}, success, error, unauthorized);
 	};
 
 	this.requestObservation = function(obj, success, error, unauthorized) {
-		return this.processRequest('post', 'GLORIAAPI/scheduler/plans/request',
-				{
-					object : obj,
-					description : obj + " observation test"
-				}, success, error, unauthorized);
+		return this.processRequest('post', 'api/scheduler/plans/request', {
+			object : obj,
+			description : obj + " observation test"
+		}, success, error, unauthorized);
 	};
 
 	this.getActivePlans = function(success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/scheduler/plans/active',
-				null, success, error, unauthorized);
+		return this.processRequest('get', 'api/scheduler/plans/active', null,
+				success, error, unauthorized);
 	};
 
 	this.getInactivePlans = function(success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/scheduler/plans/inactive',
-				null, success, error, unauthorized);
+		return this.processRequest('get', 'api/scheduler/plans/inactive', null,
+				success, error, unauthorized);
 	};
 
 	this.applyForOffline = function(experiment, success, error, unauthorized) {
 
 		return this.processRequest('get',
-				'GLORIAAPI/experiments/offline/apply?experiment=' + experiment,
-				null, success, error, unauthorized);
+				'api/experiments/offline/apply?experiment=' + experiment, null,
+				success, error, unauthorized);
 	};
 
 	/* Experiment context management */
 	this.getParameterValue = function(cid, name, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/parameters/' + name, null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + cid
+				+ '/parameters/' + name, null, success, error, unauthorized);
 	};
 
 	this.getParameterTreeValue = function(cid, name, tree, success, error,
 			unauthorized) {
 
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/parameters/' + name + '?tree=' + tree, null, success,
-				error);
+		return this
+				.processRequest('get', 'api/experiments/context/' + cid
+						+ '/parameters/' + name + '?tree=' + tree, null,
+						success, error);
 	};
 
 	this.setParameterValue = function(cid, name, value, success, error,
 			unauthorized) {
 
-		return this.processRequest('post', 'GLORIAAPI/experiments/context/'
-				+ cid + '/parameters/' + name, value, success, error,
-				unauthorized);
+		return this.processRequest('post', 'api/experiments/context/' + cid
+				+ '/parameters/' + name, value, success, error, unauthorized);
 	};
 
 	this.setParameterTreeValue = function(cid, name, tree, value, success,
 			error, unauthorized) {
-		return this.processRequest('post', 'GLORIAAPI/experiments/context/'
-				+ cid + '/parameters/' + name + '?tree=' + tree, value,
-				success, error, unauthorized);
+		return this.processRequest('post', 'api/experiments/context/' + cid
+				+ '/parameters/' + name + '?tree=' + tree, value, success,
+				error, unauthorized);
 	};
 
 	this.executeOperation = function(cid, name, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/execute/' + name, null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + cid
+				+ '/execute/' + name, null, success, error, unauthorized);
 	};
 
 	this.getElapsedTime = function(cid, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/elapsed', null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + cid
+				+ '/elapsed', null, success, error, unauthorized);
 	};
 
 	this.getRemainingTime = function(cid, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/experiments/context/'
-				+ cid + '/remaining', null, success, error, unauthorized);
+		return this.processRequest('get', 'api/experiments/context/' + cid
+				+ '/remaining', null, success, error, unauthorized);
 	};
 
 	this.getImagesByContext = function(cid, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/images/list/context/'
-				+ cid, null, success, error, unauthorized);
+		return this.processRequest('get', 'api/images/list/context/' + cid,
+				null, success, error, unauthorized);
 	};
 
 	this.getRandomImages = function(count, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/images/random/all/'
-				+ count, null, success, error, unauthorized);
+		return this.processRequest('get', 'api/images/random/all/' + count,
+				null, success, error, unauthorized);
 	};
 
 	this.getMyRandomImages = function(count, success, error, unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/images/random/mine/'
-				+ count, null, success, error, unauthorized);
+		return this.processRequest('get', 'api/images/random/mine/' + count,
+				null, success, error, unauthorized);
 	};
 
 	this.getImagesByDate = function(year, month, day, success, error,
 			unauthorized) {
-		return this.processRequest('get', 'GLORIAAPI/images/list/' + year + '/'
+		return this.processRequest('get', 'api/images/list/' + year + '/'
 				+ month + '/' + day + "?complete=true&maxResults=30", null,
 				success, error, unauthorized);
 	};
 
 	/* Scripting */
 	this.registerScript = function(script, success, error, unauthorized) {
-		return this.processRequest('post', 'GLORIAAPI/experiments/scripts/'
+		return this.processRequest('post', 'api/experiments/scripts/'
 				+ script.rt, script, success, error, unauthorized);
 	};
 
 	this.deleteScript = function(script, success, error, unauthorized) {
-		return this.processRequest('delete',
-				'GLORIAAPI/experiments/scripts/id/' + script.sid, null,
-				success, error, unauthorized);
+		return this.processRequest('delete', 'api/experiments/scripts/id/'
+				+ script.id, null, success, error, unauthorized);
 	};
 
 	this.getTelescopeScripts = function(rt, success, error, unauthorized) {
-		return this.processRequest('get',
-				'GLORIAAPI/experiments/scripts/' + rt, null, success, error,
-				unauthorized);
+		return this.processRequest('get', 'api/experiments/scripts/' + rt,
+				null, success, error, unauthorized);
 	};
 }
 

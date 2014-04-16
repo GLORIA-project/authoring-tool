@@ -1,16 +1,18 @@
 'use strict';
 
-var host = 'ws.users.gloria-project.eu';
-var protocol = 'https';
-var port = '8443';
-/*
-var host = 'saturno.datsi.fi.upm.es';
+//var host = 'ws.users.gloria-project.eu';
+//var protocol = 'https';
+//var port = '8443';
+
+
+//var host = '192.168.1.42';
+var host = 'kudhlab.com';
 var protocol = 'http';
-var port = '8080';*/
-/*
-var host = 'localhost';
-var protocol = 'http';
-var port = '8080';*/
+var port = '80';
+
+//var host = 'localhost';
+//var protocol = 'http';
+//var port = '8080';
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);

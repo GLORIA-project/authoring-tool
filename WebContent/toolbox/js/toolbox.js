@@ -761,9 +761,8 @@ toolbox.service('$gloriaEnv', function($http) {
 			return options['basePath'].css;
 		},
 		after : function(then) {
-			if (!initDone) {
-				afterSuccess.push(then);
-			} else {
+			afterSuccess.push(then);
+			if (initDone) {
 				then();
 			}
 		}
@@ -772,18 +771,20 @@ toolbox.service('$gloriaEnv', function($http) {
 	return gEnv;
 });
 
-toolbox.config(function($sceDelegateProvider, $filterProvider, $compileProvider) {
+toolbox
+		.config(function($sceDelegateProvider, $filterProvider,
+				$compileProvider) {
 
-	$sceDelegateProvider
-			.resourceUrlWhitelist([ 'self', 'https://rawgithub.com/fserena/**',
+			$sceDelegateProvider.resourceUrlWhitelist([ 'self',
+					'https://rawgithub.com/fserena/**',
 					'http://fserena.github.io/**' ]);
 
-	// save references to the providers
-	toolbox.lazy = {
-		filter : $filterProvider.register,
-		directive : $compileProvider.directive
-	};	
-});
+			// save references to the providers
+			toolbox.lazy = {
+				filter : $filterProvider.register,
+				directive : $compileProvider.directive
+			};
+		});
 
 toolbox.run(function($gloriaLocale, $gloriaEnv, $rootScope, $location, $window,
 		$timeout, smoothScroll) {
@@ -935,12 +936,13 @@ toolbox.controller('MainController', function($scope, $http, $window,
 	};
 });
 
-toolbox.controller('LoginController', function($scope, $location, Login,
-		$gloriaView, $timeout) {
+toolbox.controller('LoginController', function($gloriaAPI, $scope, $location,
+		Login, $gloriaView, $timeout) {
 
 	$scope.loaded = false;
 	$scope.login = {};
 	$scope.login.user = null;
+	$scope.login.screen_name = null;
 	$scope.verified = false;
 	$scope.login.failed = false;
 
@@ -985,8 +987,6 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 		}
 
 		$scope.gotoWelcome();
-
-		// return false;
 	};
 
 	$scope.login.connect = function() {
@@ -1002,16 +1002,27 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 		}
 
 		if ($scope.login.email != null && $scope.login.password != null) {
-			Login.authenticate($scope.login.email, $scope.login.password).then(
-					function() {
-						$scope.login.user = $scope.login.email;
-						$scope.login.finalEmail = $scope.login.email;
-						$scope.gotoMain();
-					}, function(data) {
-						$scope.login.user = null;
-						$scope.login.failed = true;
-						$scope.inputStyle.borderColor = 'rgb(255, 82, 0)';
-					});
+			Login.authenticate($scope.login.email, $scope.login.password);
+
+			Login.afterConnect(function() {
+				$scope.login.user = $scope.login.email;
+
+				var alias = Login.getUserInfo().alias;
+
+				if (alias == null || alias == "") {
+					$scope.login.screen_name = $scope.login.user;
+				} else {
+					$scope.login.screen_name = alias;
+				}
+				$scope.login.finalEmail = $scope.login.email;
+
+				$scope.gotoMain();
+			}, function(data) {
+				$scope.login.user = null;
+				$scope.login.screen_name = null;
+				$scope.login.failed = true;
+				$scope.inputStyle.borderColor = 'rgb(255, 82, 0)';
+			});
 		}
 	};
 
@@ -1032,10 +1043,10 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 	$scope.login.disconnect = function() {
 		Login.disconnect();
 		$scope.login.user = null;
+		$scope.login.screen_name = null;
 		$scope.login.email = null;
 		$scope.login.password = null;
 		document.execCommand("ClearAuthenticationCache");
-		// $scope.gotoWelcome();
 	};
 
 	$scope.$on('unauthorized', function() {
@@ -1054,10 +1065,16 @@ toolbox.controller('LoginController', function($scope, $location, Login,
 
 	Login.verifyToken(function() {
 		$scope.login.user = Login.getUser();
+
 		$scope.login.email = $scope.login.user;
 		$scope.login.finalEmail = $scope.login.email;
 		$scope.verified = true;
-		// $scope.gotoMain();
+		var alias = Login.getUserInfo().alias;
+		if (alias == null || alias == "") {
+			$scope.login.screen_name = $scope.login.user;
+		} else {
+			$scope.login.screen_name = alias;
+		}
 	}, function() {
 		$scope.verified = true;
 		$scope.gotoWelcome();
@@ -1072,45 +1089,46 @@ toolbox.service('$gloriaNav', function($http, Login, $gloriaAPI) {
 	var rawMenus = {};
 	var afterSuccess = [];
 
+	var endInitialization = function() {
+		initDone = true;
+
+		afterSuccess.forEach(function(then) {
+			if (then != undefined) {
+				then();
+			}
+		});
+	};
+
 	var refresh = function() {
-		$gloriaAPI.getUserInformation(function(info) {
 
-			menus = [];
-			console.log(info);
-			var role = info == null ? '' : info.roles[0];
+		var info = Login.getUserInfo();
 
-			for ( var key in rawMenus) {
+		menus = [];
+		var role = info == null ? '' : info.roles[0];
 
-				var menu = rawMenus[key];
+		for ( var key in rawMenus) {
 
-				var letSee = menu.visibility == undefined
-						|| (menu.visibility == role);
+			var menu = rawMenus[key];
 
-				if (letSee) {
-					menu.name = key;
-					menus.push(menu);
+			var letSee = menu.visibility == undefined
+					|| (menu.visibility == role);
 
-					if (menu.child != undefined) {
-						menu.child.forEach(function(child) {
-							letSee = child.visibility == undefined
-									|| (child.visibility == role);
-							child.visible = letSee;
-						});
-					}
+			if (letSee) {
+				menu.name = key;
+				menus.push(menu);
+
+				if (menu.child != undefined) {
+					menu.child.forEach(function(child) {
+						letSee = child.visibility == undefined
+								|| (child.visibility == role);
+						child.visible = letSee;
+					});
 				}
 			}
+		}
 
-			objMenus = rawMenus;
-
-			initDone = true;
-
-			afterSuccess.forEach(function(then) {
-				if (then != undefined) {
-					then();
-				}
-			});
-
-		});
+		objMenus = rawMenus;
+		endInitialization();
 	};
 
 	var gNav = {

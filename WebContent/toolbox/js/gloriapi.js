@@ -1,18 +1,17 @@
 'use strict';
 
-//var host = 'ws.users.gloria-project.eu';
-//var protocol = 'https';
-//var port = '8443';
+var host = 'ws.users.gloria-project.eu';
+var protocol = 'https';
+var port = '8443';
 
+// var host = '192.168.1.42';
+// var host = 'kudhlab.com';
+// var protocol = 'http';
+// var port = '8080';
 
-var host = '192.168.1.42';
-//var host = 'kudhlab.com';
-var protocol = 'http';
-var port = '8080';
-
-//var host = 'localhost';
-//var protocol = 'http';
-//var port = '8080';
+// var host = 'localhost';
+// var protocol = 'http';
+// var port = '8080';
 
 /* App Module */
 var gloria = angular.module('gloria.api', []);
@@ -642,6 +641,8 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 	var afterDisconnectFn = [];
 	var afterConnectFn = [];
 
+	var userInfo = null;
+
 	var notifyDisconnect = function() {
 		afterDisconnectFn.forEach(function(then) {
 			if (then != undefined) {
@@ -656,6 +657,27 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 				then();
 			}
 		});
+	};
+
+	var clearCookies = function() {
+		$cookieStore.remove('myGloriaToken');
+		$myCookie('myGloriaToken', {
+			path : '/',
+			expires : 0
+		});
+		$cookieStore.remove('myGloriaUser');
+		$myCookie('myGloriaUser', {
+			path : '/',
+			expires : 0
+		});
+	};
+
+	var verifyTokenError = function(error) {
+		clearCookies();
+		if (error != undefined) {
+			error();
+		}
+		notifyDisconnect();
 	};
 
 	return {
@@ -680,43 +702,35 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 				});
 
 				$gloriaAPI.setCredentials(null, token);
-				authenticated = true;
-				notifyConnect();
 			}, function() {
-				$cookieStore.remove('myGloriaToken');
-				$myCookie('myGloriaToken', {
-					path : '/',
-					expires : 0
-				});
-				$cookieStore.remove('myGloriaUser');
-				$myCookie('myGloriaUser', {
-					path : '/',
-					expires : 0
-				});
+				clearCookies();
 				$gloriaAPI.clearCredentials();
 				authenticated = false;
 				notifyDisconnect();
+			}).then(function() {
+				$gloriaAPI.getUserInformation(function(info) {
+					userInfo = info;
+					authenticated = true;
+					notifyConnect();
+				}, function() {
+					verifyTokenError(error);
+				});
 			});
 		},
 		getUser : function() {
 			return user;
 		},
+		getUserInfo : function() {
+			return userInfo;
+		},
 		isAuthenticated : function() {
 			return authenticated;
 		},
 		disconnect : function() {
-			$cookieStore.remove('myGloriaToken');
-			$myCookie('myGloriaToken', {
-				path : '/',
-				expires : 0
-			});
-			$cookieStore.remove('myGloriaUser');
-			$myCookie('myGloriaUser', {
-				path : '/',
-				expires : 0
-			});
+			clearCookies();
 			user = null;
 			token = null;
+			userInfo = null;
 			authenticated = false;
 			$gloriaAPI.clearCredentials();
 			notifyDisconnect();
@@ -729,22 +743,20 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 				$gloriaAPI.setCredentials(null, token);
 				$gloriaAPI.verifyToken(function(data) {
 					$gloriaAPI.setCredentials(null, token);
-					authenticated = true;
-					success();
-					notifyConnect();
 				}, function() {
-					$cookieStore.remove('myGloriaToken');
-					$cookieStore.remove('myGloriaUser');
-					if (error != undefined) {
-						error();
-					}
-					notifyDisconnect();
+					verifyTokenError(error);
+				}).then(function() {
+					$gloriaAPI.getUserInformation(function(info) {
+						userInfo = info;
+						authenticated = true;
+						success();
+						notifyConnect();
+					}, function() {
+						verifyTokenError(error);
+					});
 				});
 			} else {
-				if (error != undefined) {
-					error();
-				}
-				notifyDisconnect();
+				verifyTokenError(error);
 			}
 		},
 		registerUser : function(alias, email, password, success, error) {
@@ -758,16 +770,14 @@ gloria.factory('Login', function($gloriaAPI, $cookieStore, $myCookie) {
 			return $gloriaAPI.changePassword(password, success, error);
 		},
 		afterConnect : function(then) {
-			if (authenticated == undefined) {
-				afterConnectFn.push(then);
-			} else {
+			afterConnectFn.push(then);
+			if (authenticated == true) {
 				then();
 			}
 		},
 		afterDisconnect : function(then) {
-			if (authenticated == undefined) {
-				afterDisconnectFn.push(then);
-			} else {
+			afterDisconnectFn.push(then);
+			if (authenticated == false) {
 				then();
 			}
 		}

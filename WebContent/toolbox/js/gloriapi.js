@@ -5,10 +5,10 @@
 //var port = '8443';
 
 
-//var host = '192.168.1.42';
-var host = 'kudhlab.com';
+var host = '192.168.1.42';
+//var host = 'kudhlab.com';
 var protocol = 'http';
-var port = '80';
+var port = '8080';
 
 //var host = 'localhost';
 //var protocol = 'http';

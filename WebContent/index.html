@@ -11,42 +11,38 @@
 	href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css"
 	rel="stylesheet">
 <!-- Toolbox css -->
-<link href="toolbox/css/toolbox.css" rel="stylesheet">
+<link href="/gatool/toolbox/css/toolbox.css" rel="stylesheet">
 
 <!-- External libraries (jQuery, Angular, Bootstrap and UI-Bootstrap) -->
 <script
 	src=https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.0/jquery.min.js></script>
 <script
-	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular.min.js></script>
-<script src="toolbox/js/angular-smooth-scroll-1.6.0.js"></script>
+	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular.min.js></script>
 <script
-	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-animate.min.js></script>
+	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-animate.min.js></script>
 <script
-	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-route.js></script>
+	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-route.js></script>
 <script
-	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-sanitize.js></script>
+	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-sanitize.js></script>
 <script
-	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.9/angular-cookies.js></script>
+	src=https://ajax.googleapis.com/ajax/libs/angularjs/1.2.8/angular-cookies.js></script>
 <script
 	src=https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js></script>
-<script
-	src=toolbox/js/ui-bootstrap-tpls-0.10.0.js></script>
-<!-- GLORIA scripts (base path can point to http://fserena.github.io/AuthoringTool/WebContent) -->
+<script src="/gatool/toolbox/js/angular-smooth-scroll-1.6.0.js"></script>
+<script src="/gatool/toolbox/js/ui-bootstrap-tpls-0.10.0.js"></script>
 <!-- Script loader -->
-
-<script src="toolbox/js/script.js"></script>
+<script src="/gatool/toolbox/js/script.js"></script>
 <!-- GLORIAjs API -->
-<script src="toolbox/js/gloriapi.js"></script>
+<script src="/gatool/toolbox/js/gloriapi.js"></script>
 <!-- Toolbox -->
-<script src="toolbox/js/toolbox.js"></script>
-
+<script src="/gatool/toolbox/js/toolbox.js"></script>
 
 <title ng-show="titleLoaded">{{'title.browser' | i18n}}</title>
 </head>
 <body>
 </body>
 <body
-	style="padding-top: 40px; background-attachment: fixed; background-color: black; background-image: url(toolbox/img/bg-gloria.jpg); color: silver;">
+	style="padding-top: 40px; background-attachment: fixed; background-color: black; background-image: url(/gatool/toolbox/img/main_bg.png); color: silver;">
 	<div id="body-proxy" ng-include src="bodyHtml"></div>
 </body>
 </html>

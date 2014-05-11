@@ -1002,7 +1002,15 @@ toolbox.controller('LoginController', function($gloriaAPI, $scope, $location,
 		}
 
 		if ($scope.login.email != null && $scope.login.password != null) {
-			Login.authenticate($scope.login.email, $scope.login.password);
+			Login.authenticate($scope.login.email, $scope.login.password).then(
+					function() {
+					}, function() {
+						$scope.login.user = null;
+						$scope.login.screen_name = null;
+						$scope.login.failed = true;
+						$scope.inputStyle.borderColor = 'rgb(255, 82, 0)';
+
+					});
 
 			Login.afterConnect(function() {
 				$scope.login.user = $scope.login.email;
@@ -1017,11 +1025,6 @@ toolbox.controller('LoginController', function($gloriaAPI, $scope, $location,
 				$scope.login.finalEmail = $scope.login.email;
 
 				$scope.gotoMain();
-			}, function(data) {
-				$scope.login.user = null;
-				$scope.login.screen_name = null;
-				$scope.login.failed = true;
-				$scope.inputStyle.borderColor = 'rgb(255, 82, 0)';
 			});
 		}
 	};

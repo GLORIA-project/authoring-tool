@@ -1,29 +1,30 @@
 'use strict';
 
-var host = 'ws.users.gloria-project.eu';
-var protocol = 'https';
-var port = '8443';
-
+/* GLORIA API variables */
+ var host = 'ws.users.gloria-project.eu';
+ var protocol = 'https';
+ var port = '8443';
 // var host = '192.168.1.42';
 // var host = 'kudhlab.com';
 // var protocol = 'http';
 // var port = '8080';
+//var host = 'localhost';
+//var protocol = 'http';
+//var port = '8080';
 
-// var host = 'localhost';
-// var protocol = 'http';
-// var port = '8080';
-
-/* App Module */
+/* GLORIA module */
 var gloria = angular.module('gloria.api', []);
 
+/* CORS setup */
 gloria.config([ '$httpProvider', function($httpProvider) {
 	$httpProvider.defaults.useXDomain = true;
 } ]);
 
-gloria.factory('HttpWrapper',
+gloria.factory('$httpWrapper',
 		function($http, $cookies) {
 			var authorization = null;
-			var wrapper = {
+
+			return {
 				setAuthorization : function(username, password) {
 					authorization = 'Basic '
 							+ Base64.encode(username + ':' + password);
@@ -45,15 +46,13 @@ gloria.factory('HttpWrapper',
 
 					return $http(options);
 				},
-				httpAbsolute : function(options) {
+				httpGeneric : function(options) {
 					return $http(options);
 				},
 				getAuthorization : function() {
 					return authorization;
 				}
 			};
-
-			return wrapper;
 		});
 
 gloria.factory('GhWrapper', function($http, $cookies) {
@@ -121,10 +120,22 @@ function GithubHandler(GhWrapper, $q) {
 		this.httpWrapper = handler;
 	};
 
-	this.processRequest = function(method, repo, query, success, error,
-			unauthorized) {
-
+	this.processRequest = function(method, repo, query, success, error) {
 		var defer = $q.defer();
+		var treatAsError = function(response) {
+			if (error != undefined) {
+				var returnData = response.data;
+				if (response.status != 401 && response.data != undefined
+						&& response.data != null && response.data != '') {
+					try {
+						returnData = angular.fromJson(returnData);
+					} catch (e) {
+					}
+				}
+				error(returnData, response.status);
+			}
+			defer.reject(response);
+		};
 
 		var promise = this.httpWrapper.http({
 			method : method,
@@ -140,87 +151,50 @@ function GithubHandler(GhWrapper, $q) {
 							&& response.data != '') {
 						returnData = angular.fromJson(returnData);
 					}
-
 					success(returnData, response.status);
 					defer.resolve(response);
 				}
 			} else {
-				if (error != undefined) {
-					var returnData = response.data;
-					if (response.status != 401 && response.data != undefined
-							&& response.data != null && response.data != '') {
-						returnData = angular.fromJson(returnData);
-					}
-					error(returnData, response.status);
-				}
-
-				if (response.status == 401) {
-					if (unauthorized != undefined) {
-						unauthorized();
-					}
-				}
-
-				console.log(response);
-				defer.reject(response);
+				treatAsError(response);
 			}
 
 			return response.data;
 
 		}, function(response) {
-			if (error != undefined) {
-				var returnData = response.data;
-				if (response.status != 401 && response.data != undefined
-						&& response.data != null && response.data != '') {
-					returnData = angular.fromJson(returnData);
-				}
-				error(returnData, response.status);
-			}
-
-			if (response.status == 401) {
-				if (unauthorized != undefined) {
-					unauthorized();
-				}
-			}
-
-			console.log(response);
-			defer.reject(response);
-
-			return response.data;
+			treatAsError(response);
 		});
 
 		return defer.promise;
 	};
 
 	this.getAllIssues = function(repo, success, error, unauthorized) {
-
 		return this.processRequest('get', repo, 'issues', success, error,
 				unauthorized);
 	};
 
 	this.getLabelIssues = function(repo, label, success, error, unauthorized) {
-
 		return this.processRequest('get', repo, 'issues?labels=' + label,
 				success, error, unauthorized);
 	};
 
 }
 
-gloria.factory('$gloriaAPI', function(HttpWrapper, $q) {
-	var api = new GloriaApiHandler(HttpWrapper, $q);
+gloria.factory('$gloriaAPI', function($httpWrapper, $q) {
+	var api = new GloriaApiHandler($httpWrapper, $q);
 
 	return api;
 });
 
-function GloriaApiHandler(HttpWrapper, $q) {
+function GloriaApiHandler($httpWrapper, $q) {
 
-	this.httpWrapper = HttpWrapper;
+	this.httpWrapper = $httpWrapper;
 
 	this.setHttp = function(handler) {
 		this.httpWrapper = handler;
 	};
 
-	this.process = function(method, url, success, error) {
-		var promise = this.httpWrapper.httpAbsolute({
+	this.processGeneric = function(method, url, success, error) {
+		var promise = this.httpWrapper.httpGeneric({
 			method : method,
 			url : url
 		});
@@ -258,6 +232,30 @@ function GloriaApiHandler(HttpWrapper, $q) {
 			data : angular.toJson(data)
 		});
 
+		var treatAsError = function(response) {
+			if (error != undefined) {
+				var returnData = response.data;
+				if (response.status != 401 && response.data != undefined
+						&& response.data != null && response.data != '') {
+					try {
+						returnData = angular.fromJson(returnData);
+					} catch (e) {
+					}
+				}
+				error(returnData, response.status);
+			}
+
+			if (response.status == 401) {
+				if (unauthorized != undefined) {
+					unauthorized();
+				}
+			}
+
+			defer.reject(response);
+
+			return response.data;
+		};
+
 		promise = promise.then(function(response) {
 			if (response.status == 200) {
 				if (success != undefined) {
@@ -271,47 +269,10 @@ function GloriaApiHandler(HttpWrapper, $q) {
 					defer.resolve(response);
 				}
 			} else {
-				if (error != undefined) {
-					var returnData = response.data;
-					if (response.status != 401 && response.data != undefined
-							&& response.data != null && response.data != '') {
-						returnData = angular.fromJson(returnData);
-					}
-					error(returnData, response.status);
-				}
-
-				if (response.status == 401) {
-					if (unauthorized != undefined) {
-						unauthorized();
-					}
-				}
-
-				console.log(response);
-				defer.reject(response);
+				treatAsError(response);
 			}
-
-			return response.data;
-
 		}, function(response) {
-			if (error != undefined) {
-				var returnData = response.data;
-				if (response.status != 401 && response.data != undefined
-						&& response.data != null && response.data != '') {
-					returnData = angular.fromJson(returnData);
-				}
-				error(returnData, response.status);
-			}
-
-			if (response.status == 401) {
-				if (unauthorized != undefined) {
-					unauthorized();
-				}
-			}
-
-			console.log(response);
-			defer.reject(response);
-
-			return response.data;
+			treatAsError(response);
 		});
 
 		return defer.promise;
@@ -346,7 +307,7 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 	this.getUserKarma = function(user, success, error, unauthorized) {
 
-		return this.process('get',
+		return this.processGeneric('get',
 				'http://users.gloria-project.eu/karma/rest/karma/execute/get_karma/'
 						+ user, success, error, unauthorized);
 	};
@@ -387,6 +348,34 @@ function GloriaApiHandler(HttpWrapper, $q) {
 
 		return this.processRequest('get', 'api/users/deactivate', null,
 				success, error, unauthorized);
+	};
+
+	/* Telescopes management */
+	this.getAllDevices = function(rt, success, error, unauthorized) {
+		return this.processRequest('get', 'api/telescopes/' + rt + '/devices',
+				null, success, error, unauthorized);
+	};
+
+	this.getTypeDevices = function(rt, type, success, error, unauthorized) {
+		return this.processRequest('get', 'api/telescopes/' + rt
+				+ '/devices?type=' + type, null, success, error, unauthorized);
+	};
+
+	/* Direct teleoperation */
+	this.getMountState = function(rt, success, error, unauthorized) {
+		return this.processRequest('get', 'api/teleoperation/mount/status/'
+				+ rt, null, success, error, unauthorized);
+	};
+
+	this.getDomeState = function(rt, success, error, unauthorized) {
+		return this.processRequest('get',
+				'api/teleoperation/dome/status/' + rt, null, success, error,
+				unauthorized);
+	};
+
+	this.getWeatherState = function(rt, success, error, unauthorized) {
+		return this.processRequest('get', 'api/teleoperation/weather/' + rt,
+				null, success, error, unauthorized);
 	};
 
 	/* Experiment reservations management */
@@ -436,7 +425,19 @@ function GloriaApiHandler(HttpWrapper, $q) {
 			success, error, unauthorized) {
 		return this.processRequest('post',
 				'api/experiments/online/slots/available/' + date.getFullYear()
-						+ '/' + date.getMonth() + '/' + date.getDate(), {
+						+ '/' + date.getMonth() + '/' + date.getDate() + '/2',
+				{
+					experiment : experiment,
+					telescopes : telescopes
+				}, success, error, unauthorized);
+	};
+
+	this.getAvailableReservationsDh = function(experiment, telescopes, date,
+			dh, success, error, unauthorized) {
+		return this.processRequest('post',
+				'api/experiments/online/slots/available/' + date.getFullYear()
+						+ '/' + date.getMonth() + '/' + date.getDate() + '/'
+						+ dh, {
 					experiment : experiment,
 					telescopes : telescopes
 				}, success, error, unauthorized);

@@ -1,10 +1,10 @@
 {
 	"titles" : {
 		"home": "Home",
-		"experiments": {
-			"header": "Experiments",
-			"online": {
-				"header": "Online",
+		"menu": {
+			"header": "Menu",
+			"item": {
+				"header": "Header",
 				"template" : "Template"
 			}
 		},

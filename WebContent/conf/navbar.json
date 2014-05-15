@@ -6,17 +6,17 @@
 		}
 	},
 	"experiments": {
-		"text": "navbar.titles.experiments.header",
+		"text": "navbar.titles.menu.header",
 		"child": [			
 			{
 				"type": "header",
-				"text": "navbar.titles.experiments.online.header"			
+				"text": "navbar.titles.menu.item.header"			
 			},
 			{
 				"type": "link",
-				"text": "navbar.titles.experiments.online.template",
+				"text": "navbar.titles.menu.item.template",
 				"href": {
-					"app": "/GLORIASolarExperiment"
+					"app": "/"
 				}
 			},
 			{
